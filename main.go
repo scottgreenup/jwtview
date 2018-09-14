@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/base64"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -18,6 +19,12 @@ func DecodeSegment(seg string) ([]byte, error) {
 }
 
 func main() {
+
+	header := flag.Bool("header", false, "If specified will show the header")
+	claims := flag.Bool("claims", false, "If specified will show the claims")
+	signature := flag.Bool("signature", false, "If specified will show the signature")
+
+	flag.Parse()
 
 	// Read in the JWT from stdin
 	reader := bufio.NewReader(os.Stdin)
@@ -57,9 +64,25 @@ func main() {
 		decodedSegment[i] = string(decoded)
 	}
 
-	// Output the JWT segments
-	fmt.Println(decodedSegment[0])
-	fmt.Println(decodedSegment[1])
-	fmt.Println(encodedSegment[2])
+	showAll := !(*header || *claims || *signature)
 
+	// Output the JWT segments
+	if showAll {
+		fmt.Println(decodedSegment[0])
+		fmt.Println(decodedSegment[1])
+		fmt.Println(encodedSegment[2])
+		return
+	}
+
+	if *header {
+		fmt.Println(decodedSegment[0])
+	}
+
+	if *claims {
+		fmt.Println(decodedSegment[1])
+	}
+
+	if *signature {
+		fmt.Println(encodedSegment[2])
+	}
 }
